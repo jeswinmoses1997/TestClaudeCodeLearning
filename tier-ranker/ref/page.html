@@ -1,0 +1,1257 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>System Design Tier List — rank the stack · Arjay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <link rel="stylesheet" href="/assets/tdd.css" />
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+    <style>
+      /* Tier list — uses the tdd design tokens. */
+
+      /* Each tier is a clean horizontal card pinned to the board */
+      .tier-row {
+        display: grid;
+        grid-template-columns: 96px 1fr;
+        min-height: 112px;
+        background: var(--tdd-surface);
+        border: 1px solid var(--tdd-border);
+        border-radius: var(--tdd-r-lg);
+        overflow: hidden;
+        box-shadow: var(--tdd-shadow-1);
+        transition: box-shadow 0.15s ease;
+      }
+      .tier-row + .tier-row {
+        margin-top: 14px;
+      }
+
+      .tier-label {
+        display: grid;
+        place-items: center;
+        font-family: var(--tdd-sans);
+        font-weight: 800;
+        font-size: 44px;
+        letter-spacing: -0.02em;
+        color: #ffffff;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+      }
+
+      .drop-zone {
+        padding: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-content: flex-start;
+        min-height: 100%;
+        background: var(--tdd-surface);
+      }
+
+      .drop-zone.is-over,
+      .drop-zone.sortable-drag-over {
+        background: var(--tdd-blue-50);
+      }
+
+      /* Items feel like clean solid chips */
+      .item {
+        user-select: none;
+        cursor: grab;
+        touch-action: manipulation;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px 8px 8px;
+        background: var(--tdd-surface);
+        border: 1px solid var(--tdd-border-strong);
+        border-radius: 999px;
+        box-shadow: var(--tdd-shadow-1);
+        font-family: var(--tdd-sans);
+        font-weight: 600;
+        font-size: 14.5px;
+        color: var(--tdd-ink);
+        transition: box-shadow 0.15s ease, transform 0.1s ease,
+          border-color 0.15s ease, background 0.15s ease;
+      }
+      .item:hover {
+        border-color: var(--tdd-ink-4);
+        box-shadow: var(--tdd-shadow-2);
+        transform: translateY(-1px);
+      }
+      .item:active {
+        cursor: grabbing;
+      }
+
+      .item-logo {
+        width: 30px;
+        height: 30px;
+        object-fit: contain;
+        background: #fff;
+        border-radius: 999px;
+        border: 1px solid var(--tdd-border);
+        padding: 4px;
+        flex-shrink: 0;
+      }
+
+      .sortable-ghost {
+        opacity: 0.25;
+      }
+      .sortable-chosen {
+        transform: scale(1.04);
+        box-shadow: var(--tdd-shadow-3);
+      }
+      .sortable-drag {
+        cursor: grabbing;
+      }
+
+      /* Buttons — keep .btn / .btn-primary names so existing JS still matches */
+      .btn {
+        border-radius: var(--tdd-r);
+        padding: 10px 16px;
+        font-family: var(--tdd-sans);
+        font-weight: 600;
+        font-size: 14px;
+        border: 1.5px solid var(--tdd-border-strong);
+        background: var(--tdd-surface);
+        color: var(--tdd-ink);
+        touch-action: manipulation;
+        transition: background 0.15s ease, border-color 0.15s ease,
+          transform 0.1s ease, box-shadow 0.15s ease;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background: var(--tdd-surface-hover);
+        border-color: var(--tdd-ink-4);
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn-primary {
+        background: var(--tdd-blue);
+        border-color: var(--tdd-blue);
+        color: #ffffff;
+        box-shadow: 0 1px 3px rgba(37, 99, 235, 0.24);
+      }
+      .btn-primary:hover {
+        background: var(--tdd-blue-700);
+        border-color: var(--tdd-blue-700);
+        color: #ffffff;
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Unranked zone — dashed outline, acts like a tray */
+      .unranked-zone {
+        min-height: 88px;
+        padding: 12px;
+        display: flex;
+        gap: 10px;
+        align-content: flex-start;
+        background: var(--tdd-surface);
+        border: 1.5px dashed var(--tdd-border-strong);
+        border-radius: var(--tdd-r-lg);
+      }
+      .unranked-zone.horizontal {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+      }
+      .unranked-zone.horizontal .item {
+        flex-shrink: 0;
+      }
+      .unranked-zone::-webkit-scrollbar {
+        height: 8px;
+      }
+      .unranked-zone::-webkit-scrollbar-thumb {
+        background: var(--tdd-border-strong);
+        border-radius: 999px;
+      }
+
+      /* Gate modal — clean white card */
+      .gate-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(6px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .gate-backdrop.open {
+        display: flex;
+      }
+      .gate-card {
+        max-width: 460px;
+        width: 100%;
+        background: var(--tdd-surface);
+        border: 1px solid var(--tdd-border);
+        border-radius: var(--tdd-r-lg);
+        padding: 32px;
+        box-shadow: var(--tdd-shadow-3);
+        position: relative;
+      }
+      .gate-eyebrow {
+        font-family: var(--tdd-mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--tdd-blue);
+        margin-bottom: 12px;
+      }
+      .gate-title {
+        font-family: var(--tdd-sans);
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+        color: var(--tdd-ink);
+        margin: 0 0 8px;
+      }
+      .gate-sub {
+        color: var(--tdd-ink-3);
+        font-size: 15px;
+        line-height: 1.55;
+        margin: 0 0 22px;
+      }
+      .gate-input {
+        width: 100%;
+        background: var(--tdd-surface);
+        border: 1.5px solid var(--tdd-border-strong);
+        border-radius: var(--tdd-r);
+        padding: 12px 14px;
+        color: var(--tdd-ink);
+        font-size: 15px;
+        font-family: var(--tdd-sans);
+        outline: none;
+        transition: border-color 0.12s ease, box-shadow 0.12s ease;
+      }
+      .gate-input::placeholder {
+        color: var(--tdd-ink-4);
+      }
+      .gate-input:focus {
+        border-color: var(--tdd-blue);
+        box-shadow: 0 0 0 4px var(--tdd-blue-50);
+      }
+      body.gated {
+        overflow: hidden;
+      }
+
+      .hint {
+        color: var(--tdd-ink-3);
+        font-size: 14px;
+      }
+
+      /* Slide-in detail panel */
+      .panel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100vh;
+        width: 440px;
+        max-width: 100vw;
+        background: var(--tdd-surface);
+        border-left: 1px solid var(--tdd-border);
+        box-shadow: -24px 0 60px -24px rgba(15, 23, 42, 0.12);
+        transform: translateX(100%);
+        transition: transform 0.22s ease;
+        z-index: 50;
+        overflow-y: auto;
+        padding: 32px 32px 140px;
+      }
+      .panel.open {
+        transform: translateX(0);
+      }
+      .panel-close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--tdd-r);
+        border: 1.5px solid var(--tdd-border-strong);
+        background: var(--tdd-surface);
+        color: var(--tdd-ink-2);
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        transition: background 0.15s ease, border-color 0.15s ease,
+          color 0.15s ease;
+      }
+      .panel-close:hover {
+        background: var(--tdd-surface-hover);
+        border-color: var(--tdd-ink-4);
+        color: var(--tdd-ink);
+      }
+      .panel-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding-top: 8px;
+        margin-bottom: 24px;
+      }
+      .panel-logo {
+        width: 56px;
+        height: 56px;
+        object-fit: contain;
+        background: #fff;
+        border: 1px solid var(--tdd-border);
+        border-radius: var(--tdd-r);
+        padding: 8px;
+        flex-shrink: 0;
+      }
+      .panel-name {
+        font-family: var(--tdd-sans);
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        color: var(--tdd-ink);
+      }
+      .panel-section + .panel-section {
+        margin-top: 22px;
+      }
+      .panel-section h4 {
+        font-family: var(--tdd-mono);
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--tdd-ink-3);
+        margin-bottom: 6px;
+      }
+      .panel-section p {
+        font-size: 14.5px;
+        line-height: 1.6;
+        color: var(--tdd-ink-2);
+        margin: 0;
+      }
+
+      /* Sticky bottom bar */
+      .sticky-bar {
+        position: fixed !important;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 40;
+        background: rgba(247, 247, 248, 0.92);
+        backdrop-filter: saturate(160%) blur(14px);
+        -webkit-backdrop-filter: saturate(160%) blur(14px);
+        border-top: 1px solid var(--tdd-border);
+        padding: 14px 24px;
+      }
+
+      .tool-header {
+        padding: clamp(32px, 5vw, 56px) 0 clamp(20px, 3vw, 32px);
+      }
+
+      .tool-title {
+        font-family: var(--tdd-sans);
+        font-weight: 800;
+        font-size: clamp(36px, 5vw, 56px);
+        letter-spacing: -0.025em;
+        line-height: 1.02;
+        color: var(--tdd-ink);
+        margin: 0 0 14px;
+      }
+
+      .tool-lede {
+        font-size: 16px;
+        line-height: 1.55;
+        color: var(--tdd-ink-2);
+        max-width: 58ch;
+        margin: 0;
+      }
+
+      .tool-hint {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 18px;
+        font-family: var(--tdd-mono);
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        color: var(--tdd-blue);
+      }
+
+      @media (max-width: 640px) {
+        .tier-row {
+          grid-template-columns: 72px 1fr;
+          min-height: 96px;
+        }
+        .tier-label {
+          font-size: 32px;
+        }
+        .panel {
+          padding: 24px 20px 140px;
+        }
+      }
+    </style>
+  </head>
+  <body class="tdd min-h-screen">
+    <!-- Gate modal -->
+    <div id="gate" class="gate-backdrop">
+      <div class="gate-card">
+        <div class="gate-eyebrow">Subscribe · Unlock</div>
+        <h2 class="gate-title">Unlock the full set of tools</h2>
+        <p class="gate-sub">
+          Subscribe for full access to all my tools. You'll get my weekly newsletter too.
+        </p>
+        <form id="gate-form" style="display: grid; gap: 12px;">
+          <input
+            id="gate-email"
+            type="email"
+            required
+            autocomplete="email"
+            placeholder="you@domain.com"
+            class="gate-input"
+          />
+          <button
+            id="gate-submit"
+            type="submit"
+            class="btn btn-primary"
+            style="width: 100%; justify-content: center; padding: 13px 22px; font-size: 15px; display: inline-flex; align-items: center; gap: 8px;"
+          >
+            Unlock download
+            <span aria-hidden="true">→</span>
+          </button>
+          <button
+            id="gate-cancel"
+            type="button"
+            style="background: transparent; border: 0; color: var(--tdd-ink-3); font-size: 13px; padding: 6px; cursor: pointer; font-family: var(--tdd-sans);"
+          >
+            Not now
+          </button>
+          <div
+            id="gate-error"
+            class="hidden"
+            style="font-family: var(--tdd-sans); font-size: 14px; color: var(--tdd-red);"
+          ></div>
+        </form>
+        <p style="font-family: var(--tdd-sans); font-size: 11.5px; color: var(--tdd-ink-4); text-align: center; margin: 18px 0 0; line-height: 1.55;">
+          By continuing you agree to the
+          <a href="https://www.beehiiv.com/tou" target="_blank" rel="noopener">Terms</a>
+          &amp;
+          <a href="https://www.beehiiv.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
+        </p>
+      </div>
+    </div>
+
+    <!-- Top nav -->
+    <nav class="tdd-nav" id="siteNav">
+      <div class="tdd-container tdd-nav__inner">
+        <a class="tdd-brand" href="/">
+          <span class="tdd-brand__mark">A</span>
+          <span>Arjay&nbsp;McCandless</span>
+        </a>
+        <div class="tdd-nav__links">
+          <a href="/#tools">Tools</a>
+          <a href="/sponsor">Sponsor</a>
+          <a href="/#newsletter" class="tdd-btn tdd-btn--primary tdd-btn--sm">
+            Newsletter
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="tdd-container tool-header" style="max-width: 1040px;">
+      <div style="font-family: var(--tdd-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--tdd-ink-3); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
+        <span style="width: 22px; height: 1.5px; background: var(--tdd-ink-4); display: inline-block;"></span>
+        Tool&nbsp;·&nbsp;Fig&nbsp;B
+      </div>
+      <h1 class="tool-title">
+        Rank the <span class="tdd-accent">system&nbsp;design</span> stack.
+      </h1>
+      <p class="tool-lede">
+        Drag each concept into a tier. When you're happy with it,
+        download a shareable image or copy it to your clipboard.
+      </p>
+      <div class="tool-hint">
+        <span>→</span>
+        <span>Tap a concept to see what it is</span>
+      </div>
+    </header>
+
+    <main class="mx-auto px-6 pb-56" style="max-width: 1040px;">
+      <section id="tiers" aria-label="Tiers"></section>
+    </main>
+
+    <aside id="panel" class="panel" aria-hidden="true">
+      <button id="panel-close" class="panel-close" aria-label="Close">×</button>
+      <div class="panel-header">
+        <img id="panel-logo" class="panel-logo" alt="" />
+        <div id="panel-name" class="panel-name"></div>
+      </div>
+      <section class="panel-section">
+        <h4>What is it?</h4>
+        <p id="panel-what"></p>
+      </section>
+      <section class="panel-section">
+        <h4>When is it useful?</h4>
+        <p id="panel-when"></p>
+      </section>
+      <section class="panel-section">
+        <h4>Tools</h4>
+        <p id="panel-tools"></p>
+      </section>
+    </aside>
+
+    <footer class="sticky-bar">
+      <div class="mx-auto" style="max-width: 1040px;">
+        <div class="flex items-center justify-between gap-4 mb-2 flex-wrap">
+          <div>
+            <div style="font-family: var(--tdd-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--tdd-ink-3); font-weight: 500;">
+              Unranked
+            </div>
+            <div class="hint" style="font-family: var(--tdd-sans); font-size: 13px; color: var(--tdd-ink-3); margin-top: 2px;">
+              Drag into a tier above ↑
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="reset" class="btn">Reset</button>
+            <button id="download" class="btn btn-primary">Download PNG</button>
+          </div>
+        </div>
+        <div
+          id="unranked"
+          class="unranked-zone horizontal"
+          data-tier="unranked"
+        ></div>
+      </div>
+    </footer>
+
+    <script>
+      function track(name, data) {
+        if (typeof window !== "undefined" && typeof window.va === "function") {
+          window.va("event", { name, ...(data || {}) });
+        }
+      }
+
+      // Nav shadow on scroll
+      (function () {
+        const nav = document.getElementById("siteNav");
+        const onScroll = () => {
+          nav.classList.toggle("is-scrolled", window.scrollY > 8);
+        };
+        onScroll();
+        window.addEventListener("scroll", onScroll, { passive: true });
+      })();
+
+      // Tier colors — softer, non-neon palette that matches the new system
+      const TIERS = [
+        { id: "S", color: "#ef4444" }, // red
+        { id: "A", color: "#f97316" }, // orange
+        { id: "B", color: "#eab308" }, // amber
+        { id: "C", color: "#16a34a" }, // green
+        { id: "D", color: "#2563eb" }, // blue
+      ];
+
+      const ITEMS = [
+        {
+          id: "graphql",
+          name: "GraphQL",
+          icon: "graphql",
+          what: "A query language for APIs that lets clients ask for exactly the fields they need, no more, no less.",
+          when: "When you have many client types (mobile, web, internal) and over-fetching or chatty REST calls become painful.",
+          tools: "Apollo, Relay, Hasura, urql, GraphQL Yoga",
+        },
+        {
+          id: "microservices",
+          name: "Microservices",
+          icon: "kubernetes",
+          what: "Splitting your app into small, independently deployable services that communicate over the network.",
+          when: "When your team and codebase are big enough that a monolith slows shipping, and you can afford the operational complexity.",
+          tools: "Kubernetes, Docker, gRPC, Service meshes (Istio, Linkerd)",
+        },
+        {
+          id: "realtime",
+          name: "Real-time Architecture",
+          icon: "kafka",
+          what: "Systems that push data to clients the moment it changes: chats, live dashboards, presence, notifications.",
+          when: "When stale data breaks the UX: live scores, trading, chat, collaborative editing.",
+          tools: "Kafka, Redis Pub/Sub, Pusher, Ably, Server-Sent Events",
+        },
+        {
+          id: "search",
+          name: "Search",
+          icon: "elasticsearch",
+          what: "Indexed full-text search with ranking, fuzzy matching, typo tolerance, filters, and facets.",
+          when: "When `WHERE column LIKE '%x%'` stops scaling, or you need relevance ranking and faceted filters.",
+          tools: "Elasticsearch, OpenSearch, Algolia, Meilisearch, Typesense",
+        },
+        {
+          id: "serverless",
+          name: "Serverless",
+          icon: "aws-lambda",
+          what: "Run code in response to events. No servers to manage, pay per invocation.",
+          when: "Bursty or low-volume workloads, webhooks, cron jobs, glue code. Anywhere a 24/7 server is overkill.",
+          tools: "AWS Lambda, Vercel Functions, Cloudflare Workers, Google Cloud Functions",
+        },
+        {
+          id: "object-storage",
+          name: "Object Storage",
+          icon: "aws-s3",
+          what: "Durable, HTTP-addressable storage for blobs like images, video, backups, and static assets. Effectively infinite.",
+          when: "Anytime you store files. Cheaper, more durable, and more scalable than disks.",
+          tools: "AWS S3, Cloudflare R2, Google Cloud Storage, Azure Blob",
+        },
+        {
+          id: "queues",
+          name: "Queues",
+          icon: "aws-sqs",
+          what: "Decouple producers from consumers by putting work on a queue and processing it asynchronously.",
+          when: "Slow or flaky downstream work, retries, absorbing traffic spikes, background jobs.",
+          tools: "AWS SQS, RabbitMQ, BullMQ, Sidekiq, Google Pub/Sub",
+        },
+        {
+          id: "load-balancers",
+          name: "Load Balancers",
+          icon: "aws-elb",
+          what: "Distribute incoming traffic across many servers for redundancy and horizontal scale.",
+          when: "More than one backend instance. Also for TLS termination, health checks, zero-downtime deploys.",
+          tools: "AWS ALB/NLB, Nginx, HAProxy, Cloudflare Load Balancer",
+        },
+        {
+          id: "rest",
+          name: "REST APIs",
+          icon: "aws-api-gateway",
+          what: "HTTP APIs organized around resources and verbs (GET/POST/PUT/DELETE). The default for public APIs.",
+          when: "Simple CRUD, public APIs, anywhere you want broad client support and cacheability.",
+          tools: "Express, FastAPI, Hono, Rails, Spring Boot, or any HTTP framework",
+        },
+        {
+          id: "cdns",
+          name: "CDNs",
+          icon: "aws-cloudfront",
+          what: "A global network that caches your content at the edge, closer to users.",
+          when: "Any public web app. Cache static assets, offload origin, cut latency, mitigate DDoS.",
+          tools: "Cloudflare, AWS CloudFront, Fastly, Akamai, Vercel Edge Network",
+        },
+        {
+          id: "databases",
+          name: "Databases",
+          icon: "postgresql",
+          what: "Structured, durable storage. Rows, documents, key-value, graph. Pick the shape that fits your data.",
+          when: "Always. The real question is which type: transactional (OLTP), analytical (OLAP), or specialized.",
+          tools: "Postgres, MySQL, MongoDB, DynamoDB, Supabase, Neon, PlanetScale",
+        },
+        {
+          id: "caching",
+          name: "Caching",
+          icon: "redis",
+          what: "Store frequently-read data in fast memory to avoid recomputing or re-fetching it.",
+          when: "Hot reads, expensive computations, rate limiting, session storage. The #1 perf lever.",
+          tools: "Redis, Memcached, Cloudflare Cache, HTTP Cache-Control, in-process LRU",
+        },
+        {
+          id: "websockets",
+          name: "WebSockets",
+          icon: "websocket",
+          what: "A persistent, bidirectional TCP connection between client and server.",
+          when: "Chat, live collab, multiplayer games, trading UIs. Anywhere polling is too slow.",
+          tools: "Socket.IO, ws, Pusher, Ably, Supabase Realtime",
+        },
+        {
+          id: "monitoring",
+          name: "Monitoring",
+          icon: "grafana",
+          what: "Metrics, logs, and traces from your systems, visualized and alerted on.",
+          when: "Production, always. If you can't see what's happening, you can't fix it.",
+          tools: "Grafana, Prometheus, Datadog, New Relic, Sentry, OpenTelemetry",
+        },
+        {
+          id: "auth",
+          name: "Authentication",
+          icon: "auth0",
+          what: "Proving who a user is: email and password, OAuth, magic links, or session and token based auth.",
+          when: "Any app with users. Don't roll your own.",
+          tools: "Auth0, Clerk, Supabase Auth, NextAuth, Okta, AWS Cognito",
+        },
+        {
+          id: "cicd",
+          name: "CI/CD",
+          icon: "github-actions",
+          what: "Automated pipelines that build, test, and deploy code on every change.",
+          when: "Any codebase with more than one contributor. Shipping safely at speed.",
+          tools: "GitHub Actions, GitLab CI, CircleCI, Vercel Deploys, Jenkins",
+        },
+        {
+          id: "containers",
+          name: "Containers",
+          icon: "docker",
+          what: "Package your app + dependencies into a portable, isolated unit that runs identically everywhere.",
+          when: "Anything deployed to servers. Standardized, reproducible runtime.",
+          tools: "Docker, Podman, OCI images, Kubernetes (for orchestration)",
+        },
+        {
+          id: "data-warehouse",
+          name: "Data Warehouse",
+          icon: "snowflake",
+          what: "Storage optimized for analytical queries over huge historical datasets, using columnar storage and parallel execution.",
+          when: "BI dashboards, reporting, ML features, when your OLTP DB buckles under analytics.",
+          tools: "Snowflake, BigQuery, Redshift, Databricks, ClickHouse",
+        },
+        {
+          id: "feature-flags",
+          name: "Feature Flags",
+          icon: "launchdarkly",
+          what: "Runtime switches that turn features on/off without redeploying.",
+          when: "Gradual rollouts, A/B tests, kill switches, trunk-based dev, user targeting.",
+          tools: "LaunchDarkly, GrowthBook, Flagsmith, Unleash, Statsig",
+        },
+        {
+          id: "data-pipelines",
+          name: "Data Pipelines",
+          icon: "airflow",
+          what: "Move data from A to B, often transforming along the way (ETL / ELT).",
+          when: "Syncing OLTP → warehouse, ingesting events, feeding ML models, periodic reports.",
+          tools: "Airflow, dbt, Fivetran, Dagster, Prefect, Airbyte",
+        },
+      ];
+
+      const iconUrl = (slug) =>
+        `https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/${slug}.svg`;
+
+      const SHARE_URL = "arjaythedev.com";
+
+      const state = {
+        S: [],
+        A: [],
+        B: [],
+        C: [],
+        D: [],
+        unranked: ITEMS.map((i) => i.id),
+      };
+
+      const itemById = Object.fromEntries(ITEMS.map((i) => [i.id, i]));
+
+      const tiersEl = document.getElementById("tiers");
+      const unrankedEl = document.getElementById("unranked");
+
+      function itemNode(item) {
+        const el = document.createElement("div");
+        el.className = "item";
+        el.dataset.itemId = item.id;
+        el.innerHTML = `<img class="item-logo" src="${iconUrl(item.icon)}" alt="${item.name}" /><span>${item.name}</span>`;
+        el.addEventListener("click", (e) => {
+          if (justDragged) return;
+          openPanel(item);
+        });
+        return el;
+      }
+
+      function renderTiers() {
+        tiersEl.innerHTML = TIERS.map(
+          (t) => `
+            <div class="tier-row" data-tier="${t.id}">
+              <div class="tier-label" style="background:${t.color}">${t.id}</div>
+              <div class="drop-zone" data-tier="${t.id}" id="zone-${t.id}"></div>
+            </div>
+          `,
+        ).join("");
+      }
+
+      function renderItems() {
+        const zones = {
+          unranked: unrankedEl,
+          ...Object.fromEntries(
+            TIERS.map((t) => [t.id, document.getElementById(`zone-${t.id}`)]),
+          ),
+        };
+        for (const tier of Object.keys(zones)) {
+          const zone = zones[tier];
+          zone.innerHTML = "";
+          for (const id of state[tier]) {
+            const item = itemById[id];
+            if (item) zone.appendChild(itemNode(item));
+          }
+        }
+      }
+
+      let justDragged = false;
+      function wireSortables() {
+        const zones = [
+          unrankedEl,
+          ...TIERS.map((t) => document.getElementById(`zone-${t.id}`)),
+        ];
+        for (const zone of zones) {
+          new Sortable(zone, {
+            group: "tiers",
+            animation: 150,
+            ghostClass: "sortable-ghost",
+            chosenClass: "sortable-chosen",
+            onStart: () => { justDragged = true; },
+            onEnd: () => {
+              setTimeout(() => { justDragged = false; }, 50);
+              rebuildState();
+            },
+            onAdd: rebuildState,
+            onUpdate: rebuildState,
+            onRemove: rebuildState,
+          });
+        }
+      }
+
+      function rebuildState() {
+        for (const tier of Object.keys(state)) state[tier] = [];
+        const zones = [
+          ["unranked", unrankedEl],
+          ...TIERS.map((t) => [t.id, document.getElementById(`zone-${t.id}`)]),
+        ];
+        for (const [tier, zone] of zones) {
+          for (const node of zone.querySelectorAll("[data-item-id]")) {
+            state[tier].push(node.dataset.itemId);
+          }
+        }
+      }
+
+      document.getElementById("reset").addEventListener("click", () => {
+        for (const t of Object.keys(state)) state[t] = [];
+        state.unranked = ITEMS.map((i) => i.id);
+        renderItems();
+      });
+
+      // ---- Canvas rendering ----
+      function roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      const CANVAS_FONT_STACK =
+        '"Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
+      const CANVAS_FONT_MONO =
+        '"JetBrains Mono", ui-monospace, Menlo, monospace';
+
+      const proxy = (url) =>
+        `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=256&h=256&fit=contain&output=png`;
+
+      async function loadImage(url) {
+        try {
+          const res = await fetch(url, { mode: "cors" });
+          if (!res.ok) throw new Error("bad status");
+          const blob = await res.blob();
+          const obj = URL.createObjectURL(blob);
+          return await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+              URL.revokeObjectURL(obj);
+              resolve(img);
+            };
+            img.onerror = () => {
+              URL.revokeObjectURL(obj);
+              reject();
+            };
+            img.src = obj;
+          });
+        } catch {
+          return null;
+        }
+      }
+
+      const logoImgCache = new Map();
+      async function ensureLogos() {
+        const slugs = [...new Set(ITEMS.map((i) => i.icon))];
+        await Promise.all(
+          slugs.map(async (s) => {
+            if (logoImgCache.has(s)) return;
+            const img = await loadImage(proxy(iconUrl(s)));
+            if (img) logoImgCache.set(s, img);
+          }),
+        );
+      }
+
+      function measureItemWidth(ctx, item) {
+        ctx.font = `600 48px ${CANVAS_FONT_STACK}`;
+        const logoW = 120;
+        const gap = 28;
+        const padX = 36;
+        const textW = ctx.measureText(item.name).width;
+        return padX * 2 + logoW + gap + textW;
+      }
+
+      function drawItemChip(ctx, item, x, y, w, h) {
+        // soft shadow
+        ctx.fillStyle = "rgba(15, 23, 42, 0.06)";
+        roundRect(ctx, x, y + 6, w, h, h / 2);
+        ctx.fill();
+
+        // white pill
+        ctx.fillStyle = "#ffffff";
+        roundRect(ctx, x, y, w, h, h / 2);
+        ctx.fill();
+        ctx.strokeStyle = "#e5e7eb";
+        ctx.lineWidth = 2;
+        roundRect(ctx, x, y, w, h, h / 2);
+        ctx.stroke();
+
+        const logoSize = 120;
+        const lx = x + 32;
+        const ly = y + (h - logoSize) / 2;
+
+        ctx.fillStyle = "#ffffff";
+        roundRect(ctx, lx, ly, logoSize, logoSize, logoSize / 2);
+        ctx.fill();
+        ctx.strokeStyle = "#eceef2";
+        ctx.lineWidth = 1.5;
+        roundRect(ctx, lx, ly, logoSize, logoSize, logoSize / 2);
+        ctx.stroke();
+
+        const img = logoImgCache.get(item.icon);
+        if (img) {
+          const inset = 18;
+          const maxW = logoSize - inset * 2;
+          const maxH = logoSize - inset * 2;
+          const ratio = Math.min(maxW / img.width, maxH / img.height);
+          const iw = img.width * ratio;
+          const ih = img.height * ratio;
+          ctx.drawImage(
+            img,
+            lx + (logoSize - iw) / 2,
+            ly + (logoSize - ih) / 2,
+            iw,
+            ih,
+          );
+        } else {
+          ctx.fillStyle = "#1a1a2e";
+          ctx.font = `800 72px ${CANVAS_FONT_STACK}`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(item.name[0], lx + logoSize / 2, ly + logoSize / 2 + 1);
+          ctx.textAlign = "start";
+          ctx.textBaseline = "alphabetic";
+        }
+
+        ctx.font = `600 48px ${CANVAS_FONT_STACK}`;
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#1a1a2e";
+        ctx.fillText(item.name, lx + logoSize + 28, y + h / 2 + 2);
+        ctx.textBaseline = "alphabetic";
+      }
+
+      async function buildTierListCanvas() {
+        if (document.fonts && document.fonts.ready) {
+          await document.fonts.ready;
+        }
+        await ensureLogos();
+        const dpr = isMobile ? 1.5 : 2;
+        const W = 2600;
+        const padX = 72;
+        const headerH = 260;
+        const minRowH = 320;
+        const rowGap = 24;
+        const labelW = 260;
+        const chipH = 180;
+        const chipGap = 20;
+        const rowPad = 32;
+        const footerH = 120;
+
+        const measureCanvas = document.createElement("canvas");
+        const measureCtx = measureCanvas.getContext("2d");
+
+        const contentX = padX;
+        const contentW = W - padX * 2;
+        const zoneW = contentW - labelW - rowPad * 2;
+
+        const tierLayouts = TIERS.map((tier) => {
+          const items = state[tier.id]
+            .map((id) => itemById[id])
+            .filter(Boolean);
+          const rows = [[]];
+          let curWidth = 0;
+          for (const item of items) {
+            const w = measureItemWidth(measureCtx, item);
+            const needs = (curWidth > 0 ? chipGap : 0) + w;
+            if (curWidth > 0 && curWidth + needs > zoneW) {
+              rows.push([]);
+              curWidth = 0;
+            }
+            rows[rows.length - 1].push({ item, w });
+            curWidth += (curWidth > 0 && rows[rows.length - 1].length > 1 ? chipGap : 0) + w;
+          }
+          const rowCount = Math.max(1, rows.length);
+          const height = Math.max(
+            minRowH,
+            rowPad * 2 + rowCount * chipH + (rowCount - 1) * chipGap,
+          );
+          return { tier, rows, height };
+        });
+
+        const tiersTotalH = tierLayouts.reduce((a, t) => a + t.height, 0);
+        const H =
+          headerH +
+          tiersTotalH +
+          (TIERS.length - 1) * rowGap +
+          footerH;
+
+        const canvas = document.createElement("canvas");
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        const ctx = canvas.getContext("2d");
+        ctx.scale(dpr, dpr);
+
+        // Paper background
+        ctx.fillStyle = "#f7f7f8";
+        ctx.fillRect(0, 0, W, H);
+
+        // Subtle dot grid
+        ctx.fillStyle = "#e5e7eb";
+        const dotSpacing = 36;
+        for (let x = dotSpacing / 2; x < W; x += dotSpacing) {
+          for (let y = dotSpacing / 2; y < H; y += dotSpacing) {
+            ctx.fillRect(x, y, 2, 2);
+          }
+        }
+
+        // Header
+        ctx.fillStyle = "#6b7280";
+        ctx.font = `500 28px ${CANVAS_FONT_MONO}`;
+        ctx.fillText("SYSTEM DESIGN · MY RANKING", padX, 100);
+
+        ctx.fillStyle = "#1a1a2e";
+        ctx.font = `800 128px ${CANVAS_FONT_STACK}`;
+        ctx.fillText("System Design Tier List", padX, 210);
+
+        // Tier rows
+        let y = headerH;
+
+        for (const layout of tierLayouts) {
+          const { tier, rows, height } = layout;
+
+          // soft shadow
+          ctx.fillStyle = "rgba(15, 23, 42, 0.04)";
+          roundRect(ctx, contentX, y + 4, contentW, height, 20);
+          ctx.fill();
+
+          // row card
+          ctx.fillStyle = "#ffffff";
+          roundRect(ctx, contentX, y, contentW, height, 20);
+          ctx.fill();
+          ctx.strokeStyle = "#eceef2";
+          ctx.lineWidth = 2;
+          roundRect(ctx, contentX, y, contentW, height, 20);
+          ctx.stroke();
+
+          // tier label block (colored)
+          ctx.save();
+          ctx.beginPath();
+          roundRect(ctx, contentX, y, labelW, height, 20);
+          ctx.clip();
+          ctx.fillStyle = tier.color;
+          ctx.fillRect(contentX, y, labelW, height);
+          ctx.restore();
+
+          ctx.fillStyle = "#ffffff";
+          ctx.font = `800 160px ${CANVAS_FONT_STACK}`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(tier.id, contentX + labelW / 2, y + height / 2 + 12);
+          ctx.textAlign = "start";
+          ctx.textBaseline = "alphabetic";
+
+          // chips
+          const zoneX = contentX + labelW + rowPad;
+          const zoneY = y + rowPad;
+          rows.forEach((row, rIdx) => {
+            let cx = zoneX;
+            const cy = zoneY + rIdx * (chipH + chipGap);
+            row.forEach(({ item, w }, cIdx) => {
+              drawItemChip(ctx, item, cx, cy, w, chipH);
+              cx += w + (cIdx < row.length - 1 ? chipGap : 0);
+            });
+          });
+
+          y += height + rowGap;
+        }
+
+        // Footer
+        ctx.fillStyle = "#9ca3af";
+        ctx.font = `500 26px ${CANVAS_FONT_MONO}`;
+        ctx.fillText(SHARE_URL.toUpperCase(), padX, H - 50);
+
+        ctx.fillStyle = "#1a1a2e";
+        ctx.font = `600 26px ${CANVAS_FONT_MONO}`;
+        ctx.textAlign = "right";
+        ctx.fillText("SYSTEM DESIGN TIER LIST", W - padX, H - 50);
+        ctx.textAlign = "start";
+
+        return canvas;
+      }
+
+      function canvasToBlob(canvas) {
+        return new Promise((resolve) =>
+          canvas.toBlob(resolve, "image/png"),
+        );
+      }
+
+      const isMobile =
+        /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+        (navigator.userAgentData && navigator.userAgentData.mobile);
+
+      async function saveImage(canvas, filename) {
+        const blob = await canvasToBlob(canvas);
+        if (!blob) return false;
+        if (isMobile) {
+          try {
+            const file = new File([blob], filename, { type: "image/png" });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                files: [file],
+                title: "My System Design Tier List",
+              });
+              return true;
+            }
+          } catch (e) {
+            if (e && e.name === "AbortError") return false;
+          }
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        return true;
+      }
+
+      function flashBtn(btn, msg) {
+        const old = btn.textContent;
+        btn.textContent = msg;
+        setTimeout(() => (btn.textContent = old), 1400);
+      }
+
+      document.getElementById("download").addEventListener("click", () => {
+        requireEmail(async () => {
+          track("download_png");
+          const btn = document.getElementById("download");
+          btn.disabled = true;
+          btn.textContent = "Rendering…";
+          const canvas = await buildTierListCanvas();
+          await saveImage(canvas, "system-design-tier-list.png");
+          btn.disabled = false;
+          btn.textContent = "Download PNG";
+          flashBtn(btn, "Saved ✓");
+        });
+      });
+
+      // ---- Email gate ----
+      const GATE_KEY = "systemtier.subscribed";
+      const gateEl = document.getElementById("gate");
+      const gateForm = document.getElementById("gate-form");
+      const gateEmail = document.getElementById("gate-email");
+      const gateCancel = document.getElementById("gate-cancel");
+      const gateError = document.getElementById("gate-error");
+
+      let pendingAction = null;
+
+      function openGate() {
+        gateEl.classList.add("open");
+        document.body.classList.add("gated");
+        setTimeout(() => gateEmail.focus(), 50);
+      }
+      function closeGate() {
+        gateEl.classList.remove("open");
+        document.body.classList.remove("gated");
+      }
+
+      function requireEmail(action) {
+        if (localStorage.getItem(GATE_KEY) === "1") return action();
+        pendingAction = action;
+        openGate();
+      }
+
+      gateCancel.addEventListener("click", () => {
+        pendingAction = null;
+        gateError.classList.add("hidden");
+        closeGate();
+      });
+
+      gateEl.addEventListener("click", (e) => {
+        if (e.target === gateEl) {
+          pendingAction = null;
+          gateError.classList.add("hidden");
+          closeGate();
+        }
+      });
+
+      gateForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = gateEmail.value.trim();
+        if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+          gateError.textContent = "Please enter a valid email.";
+          gateError.classList.remove("hidden");
+          return;
+        }
+        gateError.classList.add("hidden");
+
+        track("email_submit");
+        fetch("/api/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, source: "tier-list" }),
+        }).catch(() => {});
+
+        localStorage.setItem(GATE_KEY, "1");
+        closeGate();
+        const action = pendingAction;
+        pendingAction = null;
+        if (action) action();
+      });
+
+      // ---- Concept info panel ----
+      const panelEl = document.getElementById("panel");
+      const panelCloseBtn = document.getElementById("panel-close");
+      const panelLogo = document.getElementById("panel-logo");
+      const panelName = document.getElementById("panel-name");
+      const panelWhat = document.getElementById("panel-what");
+      const panelWhen = document.getElementById("panel-when");
+      const panelTools = document.getElementById("panel-tools");
+
+      function openPanel(item) {
+        panelLogo.src = iconUrl(item.icon);
+        panelLogo.alt = item.name;
+        panelName.textContent = item.name;
+        panelWhat.textContent = item.what || "";
+        panelWhen.textContent = item.when || "";
+        panelTools.textContent = item.tools || "";
+        panelEl.classList.add("open");
+        panelEl.setAttribute("aria-hidden", "false");
+        track("concept_view", { concept: item.id });
+      }
+      function closePanel() {
+        panelEl.classList.remove("open");
+        panelEl.setAttribute("aria-hidden", "true");
+      }
+      panelCloseBtn.addEventListener("click", closePanel);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closePanel();
+      });
+
+      // init
+      renderTiers();
+      renderItems();
+      wireSortables();
+
+      if ("requestIdleCallback" in window) {
+        requestIdleCallback(() => ensureLogos(), { timeout: 3000 });
+      } else {
+        setTimeout(() => ensureLogos(), 1500);
+      }
+    </script>
+  </body>
+</html>

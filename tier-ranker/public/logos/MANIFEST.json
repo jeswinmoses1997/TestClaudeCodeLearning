@@ -1,0 +1,142 @@
+[
+  {
+    "slug": "airflow",
+    "file": "airflow.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/airflow.svg",
+    "bytes": 56919,
+    "sha256": "ce2d58673fbe3298baf74d22b720c67d8f327e678013c675cb28fa5e9051b2bd"
+  },
+  {
+    "slug": "auth0",
+    "file": "auth0.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/auth0.svg",
+    "bytes": 4284,
+    "sha256": "523de8bb3e9e307c17bab1325410d8067865481aeb3d35fb3d65dfeee253cefb"
+  },
+  {
+    "slug": "aws-api-gateway",
+    "file": "aws-api-gateway.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/aws-api-gateway.svg",
+    "bytes": 3155,
+    "sha256": "f538b2af4a0baddd5d82f78c9e3dca2f187ad536aff5273d753ec3469bf4771f"
+  },
+  {
+    "slug": "aws-cloudfront",
+    "file": "aws-cloudfront.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/aws-cloudfront.svg",
+    "bytes": 4579,
+    "sha256": "fe2b1e6b4cf500c9fb388189f1e715ab08d3338e7128904c26c0a43e6748c802"
+  },
+  {
+    "slug": "aws-elb",
+    "file": "aws-elb.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/aws-elb.svg",
+    "bytes": 2311,
+    "sha256": "411645ed988af9890f8c973c86fe9c30f34c2d43c6474a8c52b83a078bf2ad69"
+  },
+  {
+    "slug": "aws-lambda",
+    "file": "aws-lambda.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/aws-lambda.svg",
+    "bytes": 2041,
+    "sha256": "7b3333ddba2edf9961fee82a183faa3ae441f8e3dc5ef9675eea8d5cde41b94b"
+  },
+  {
+    "slug": "aws-s3",
+    "file": "aws-s3.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/aws-s3.svg",
+    "bytes": 2612,
+    "sha256": "f8651024d0ff906ec599a2c2a804222d5bdf0977f78a39eb54074b29573dc3cb"
+  },
+  {
+    "slug": "aws-sqs",
+    "file": "aws-sqs.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/aws-sqs.svg",
+    "bytes": 6095,
+    "sha256": "4aa44616e5486b43d27ca4c02af63167931ec1e42b47c31de4e0d69cd76c3b1f"
+  },
+  {
+    "slug": "docker",
+    "file": "docker.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/docker.svg",
+    "bytes": 12668,
+    "sha256": "8b8884fe29c107861fa85f510276e5bf0da81c870f4d08436488b60b7956dfbd"
+  },
+  {
+    "slug": "elasticsearch",
+    "file": "elasticsearch.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/elasticsearch.svg",
+    "bytes": 1290,
+    "sha256": "6ba8d7dbe4a22400371f2d55454695afb0fef2b975ee261bed1ac903c1003e3e"
+  },
+  {
+    "slug": "github-actions",
+    "file": "github-actions.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/github-actions.svg",
+    "bytes": 6915,
+    "sha256": "eb6c6db889dfacdaac62ce3fc12a25a8d6285d29ebfa278eb764c4d739975397"
+  },
+  {
+    "slug": "grafana",
+    "file": "grafana.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/grafana.svg",
+    "bytes": 14382,
+    "sha256": "fd8a3ed74c3527bf4b801860550c9c2d9898a1c219a4bb32be06a353bf62009e"
+  },
+  {
+    "slug": "graphql",
+    "file": "graphql.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/graphql.svg",
+    "bytes": 3565,
+    "sha256": "ae7c19c7decf631cec8dde33db7abf8689934cf73ed8db6a8f8f6b3adb6671bd"
+  },
+  {
+    "slug": "kafka",
+    "file": "kafka.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/kafka.svg",
+    "bytes": 9667,
+    "sha256": "f8ad898f8096418a3284cf42f8a1a68fe8087e19968410c37ff91022cb100626"
+  },
+  {
+    "slug": "kubernetes",
+    "file": "kubernetes.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/kubernetes.svg",
+    "bytes": 15394,
+    "sha256": "50dc732fd338d002e215a77b697a5bec8383a8da498e47b43c0e01fed9796a60"
+  },
+  {
+    "slug": "launchdarkly",
+    "file": "launchdarkly.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/launchdarkly.svg",
+    "bytes": 11694,
+    "sha256": "6925f8bbf22a212c164be47d107d0a4c8cc8a167674752b737fefbc22709c3cf"
+  },
+  {
+    "slug": "postgresql",
+    "file": "postgresql.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/postgresql.svg",
+    "bytes": 13221,
+    "sha256": "51d73b7638999e907138076918408f778d35525c9e591c5ced612de44f814762"
+  },
+  {
+    "slug": "redis",
+    "file": "redis.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/redis.svg",
+    "bytes": 5018,
+    "sha256": "80047aa53f602437840fd8520097e5f4353f09cca0ba307a1b42bd6b4d374838"
+  },
+  {
+    "slug": "snowflake",
+    "file": "snowflake.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/snowflake.svg",
+    "bytes": 22366,
+    "sha256": "ec9a922fe3abe4862f79acf519bae9a40b37cfe95f300808e483c7d231108700"
+  },
+  {
+    "slug": "websocket",
+    "file": "websocket.svg",
+    "source": "https://cdn.jsdelivr.net/gh/gilbarbara/logos@main/logos/websocket.svg",
+    "bytes": 1227,
+    "sha256": "da83b839a28c0fed5e06d41dcc974b2871db3c774fd384bd454a0c0a08a57c68"
+  }
+]

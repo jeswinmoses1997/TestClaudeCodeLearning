@@ -1,0 +1,28 @@
+claude --dangerously-skip-permissions
+
+claude skill 
+
+/goal
+
+skills.sh 
+
+/frontend-design - i want you to renovate this entire application
+react jd or next.js - for frontend 
+
+docker ai 
+
+/compact - when the /context tockens goes above 50% - this will summarizing the conversation
+
+/doctor
+/model
+/clear
+/memory
+/effort
+/resume - it is used to go to old conversation
+/rewind = it will rewind the full conversation and the CODE as well to a previous point
+
+/plugins - use them for the project / and we can learn
+
+if you want to uninstall a skill that you have already installed just go to the dot .agent folder and delete the file - it will delete the skill and rewrite entire CODE
+
+version controls - GIT
