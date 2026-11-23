@@ -1,18 +1,31 @@
+LEARNING CLAUDE CODE 
+
+
+L1 - PERMISSION MODES
 claude --dangerously-skip-permissions
 
-claude skill 
-
+L2 - /GOAL
 /goal
+
+L3 - skill
+claude skill 
 
 skills.sh 
 
 /frontend-design - i want you to renovate this entire application
 react jd or next.js - for frontend 
 
-docker ai 
+- docker ai - = for docker management
 
 /compact - when the /context tockens goes above 50% - this will summarizing the conversation
 
+if you want to uninstall a skill that you have already installed just go to the dot .agent folder and delete the file - it will delete the skill and rewrite entire CODE
+
+L4 - CONTEXT 
+/context - this is used to check the usage of claude code how much tockens are being used once it is 50% the best way is to " /compact - when the /context tockens goes above 50% - this will summarizing the conversation "
+/COMPACT
+
+L5 - Slash Commands 
 /doctor
 /model
 /clear
@@ -23,6 +36,26 @@ docker ai
 
 /plugins - use them for the project / and we can learn
 
-if you want to uninstall a skill that you have already installed just go to the dot .agent folder and delete the file - it will delete the skill and rewrite entire CODE
-
+L6 - GIT
 version controls - GIT
+this is used to upload the project and save it 
+if needed we can go back and download the repo on a specific date
+
+L7 - Tools - MCP ( Model Context Protocol )
+" tools are 
+jira to manage your project board
+vercel to deploy your application
+stripe to creating products for e-commerce store
+facebook using it to create ads or communities " - how to automate all these 
+
+we can also use CLI ( Command Line Interface ) TOOL - it is like opening terminal and using a 4rd party software to work on
+
+stripe cli , stripe mcp - we have our llm models to connect to 
+google cli as well
+GoHighLevel - we can connect LLM to this as well
+
+there is VERCEL MCP , VERCEL CLI - use LLM Larger Engine Model to deploy application
+
+To get a project to check, I can run vercel link in a project folder, or deploy one with /vercel:deploy.
+ask me to list your Vercel projects, check deployments, or deploy with vercel.
+
